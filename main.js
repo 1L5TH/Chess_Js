@@ -47,7 +47,7 @@ function reverseBoard(chessBoard) {
 function createColumns(num) {
   const colContainer = document.createElement("div");
   colContainer.classList.add(
-    num !== undefined ? `colContainer${num}` : `colContainer`
+    num !== undefined ? `colContainer${num}` : `colContainer`,
   );
   colContainer.id = `colContainer${num !== undefined ? num : ""}`;
 
@@ -63,7 +63,7 @@ function createColumns(num) {
 function createRows(num) {
   const rowContainer = document.createElement("div");
   rowContainer.classList.add(
-    num !== undefined ? `rowContainer${num}` : `rowContainer`
+    num !== undefined ? `rowContainer${num}` : `rowContainer`,
   );
   rowContainer.id = `rowContainer${num !== undefined ? num : ""}`;
 
@@ -121,7 +121,7 @@ function drawBoard(chessBoardWhite, whiteBoard, reverseChessBoard) {
       const square = document.createElement("div");
       square.classList.add("square");
       square.classList.add(
-        row[column] % 2 === 0 ? `${squareColor1}` : `${squareColor2}`
+        row[column] % 2 === 0 ? `${squareColor1}` : `${squareColor2}`,
       );
       square.id = column;
       board.appendChild(square);
@@ -132,14 +132,14 @@ function drawBoard(chessBoardWhite, whiteBoard, reverseChessBoard) {
 
 function startPiecesPositions() {
   const W_rook_a1 = document.getElementById("a1");
-  const W_rook_h1 = document.getElementById("e4");
+  const W_rook_h1 = document.getElementById("h1");
   const B_rook_a8 = document.getElementById("a8");
   const B_rook_h8 = document.getElementById("h8");
   const W_knight_b1 = document.getElementById("b1");
   const W_knight_g1 = document.getElementById("g1");
   const B_knight_b8 = document.getElementById("b8");
   const B_knight_g8 = document.getElementById("g8");
-  const W_bishop_c1 = document.getElementById("c1");
+  const W_bishop_c1 = document.getElementById("d4"); // c1
   const W_bishop_f1 = document.getElementById("f1");
   const B_bishop_c8 = document.getElementById("c8");
   const B_bishop_f8 = document.getElementById("f8");
@@ -232,10 +232,10 @@ function drawSelectedPiece(positionPiece, typePiece, squareSelected) {
   squareContainerSelected.innerHTML = `<img src="pieces/${typePiece}.svg" alt="${typePiece}" id="${typePiece}-${squareSelected}" class="${typePiece}"/>`;
   squareContainerSelected.classList.add("occupied");
   const newSelectedPiece = document.getElementById(
-    `${typePiece}-${squareSelected}`
+    `${typePiece}-${squareSelected}`,
   );
   const pieceSelected = document.getElementById(
-    `${typePiece}-${positionPiece}`
+    `${typePiece}-${positionPiece}`,
   );
   const pieceSelectedSquare = document.getElementById(`${positionPiece}`);
 
@@ -247,7 +247,7 @@ function drawSelectedPiece(positionPiece, typePiece, squareSelected) {
   }
 
   newSelectedPiece.addEventListener("click", () =>
-    getMovements(newSelectedPiece)
+    getMovements(newSelectedPiece),
   );
 }
 
@@ -256,7 +256,7 @@ function createNewElement(
   attributes = {},
   children,
   imageSrc,
-  imageAlt
+  imageAlt,
 ) {
   const element = document.createElement(tagName);
 
@@ -298,9 +298,9 @@ function desmarkEatableSquares() {
               },
               true,
               `pieces/${typePiece}.svg`,
-              `${typePiece}`
+              `${typePiece}`,
             ),
-            checkEatableClass
+            checkEatableClass,
           );
         } else {
           if (checkEatableClass.classList[2].includes("passant")) {
@@ -321,9 +321,9 @@ function desmarkEatableSquares() {
               },
               false,
               null,
-              null
+              null,
             ),
-            checkEatableClass
+            checkEatableClass,
           );
         }
       }
@@ -339,7 +339,7 @@ function replaceUnoccupiedSquares(typePiece) {
         squareWithEventListener.dataset.eventlisteners !== undefined &&
         !squareWithEventListener.classList.contains("occupied") &&
         !squareWithEventListener.classList.contains(
-          `passant-${typePiece.split("-")[1]}`
+          `passant-${typePiece.split("-")[1]}`,
         )
       ) {
         let clasElements = squareWithEventListener.classList;
@@ -354,9 +354,9 @@ function replaceUnoccupiedSquares(typePiece) {
             },
             false,
             null,
-            null
+            null,
           ),
-          squareWithEventListener
+          squareWithEventListener,
         );
       }
     });
@@ -370,30 +370,81 @@ function flipBoard(typePiece) {
   setPlayersTurn(true, colorSwitch);
 }
 
-function checkCompassSquares(positionPiece) {
+function checkCompassSquares(positionPiece, cross) {
   const upSquare = document.getElementById(
-    `${positionPiece.charAt(0)}${parseInt(positionPiece.charAt(1)) + 1}`
+    `${positionPiece.charAt(0)}${parseInt(positionPiece.charAt(1)) + 1}`,
   );
 
   const rightSquare = document.getElementById(
     `${String.fromCharCode(
-      positionPiece.charCodeAt(0) + 1
-    )}${positionPiece.charAt(1)}`
+      positionPiece.charCodeAt(0) + 1,
+    )}${positionPiece.charAt(1)}`,
   );
 
   const leftSquare = document.getElementById(
     `${String.fromCharCode(
-      positionPiece.charCodeAt(0) - 1
-    )}${positionPiece.charAt(1)}`
+      positionPiece.charCodeAt(0) - 1,
+    )}${positionPiece.charAt(1)}`,
   );
 
   const downSquare = document.getElementById(
-    `${positionPiece.charAt(0)}${parseInt(positionPiece.charAt(1)) - 1}`
+    `${positionPiece.charAt(0)}${parseInt(positionPiece.charAt(1)) - 1}`,
   );
 
-  const validSquares = [upSquare, rightSquare, leftSquare, downSquare];
-  const icrementSquares = [1, null, null, -1];
-  const charIncrementSquares = [null, 1, -1, null];
+  const upRightSquare = document.getElementById(
+    `${String.fromCharCode(positionPiece.charCodeAt(0) + 1)}${
+      parseInt(positionPiece.charAt(1)) + 1
+    }`
+  );
+
+  const upLeftSquare = document.getElementById(
+    `${String.fromCharCode(positionPiece.charCodeAt(0) - 1)}${
+      parseInt(positionPiece.charAt(1)) + 1
+    }`
+  );
+
+  const downRightSquare = document.getElementById(
+    `${String.fromCharCode(positionPiece.charCodeAt(0) + 1)}${
+      parseInt(positionPiece.charAt(1)) - 1
+    }`
+  );
+
+  const downLeftSquare = document.getElementById(
+    `${String.fromCharCode(positionPiece.charCodeAt(0) - 1)}${
+      parseInt(positionPiece.charAt(1)) - 1
+    }`
+  );
+
+  const validSquares =
+    cross === 0
+      ? [upSquare, rightSquare, leftSquare, downSquare]
+      : cross === 1
+      ? [upRightSquare, upLeftSquare, downRightSquare, downLeftSquare]
+      : [
+          upSquare,
+          rightSquare,
+          leftSquare,
+          downSquare,
+          upRightSquare,
+          upLeftSquare,
+          downRightSquare,
+          downLeftSquare,
+        ];
+
+  const icrementSquares =
+    cross === 0
+      ? [1, null, null, -1]
+      : cross === 1
+      ? [1, 1, -1, -1]
+      : [1, null, null, -1, 1, 1, -1, -1];
+
+  const charIncrementSquares =
+    cross === 0
+      ? [null, 1, -1, null]
+      : cross === 1
+      ? [1, 1, -1, -1]
+      : [null, 1, -1, null, 1, 1, -1, -1];
+
   let increment = [];
   let charIncrement = [];
 
@@ -427,7 +478,7 @@ function checkIncrementedSquares(square, increment, charIncrement, typePiece) {
           document.getElementById(`${square.id.charAt(0)}${index}`) !== null
             ? document.getElementById(`${square.id.charAt(0)}${index}`)
             : document.getElementById(
-                `${square.id.charAt(0)}${square.id.charAt(1)}`
+                `${square.id.charAt(0)}${square.id.charAt(1)}`,
               );
 
         unOccupiedSquares[index - parseInt(square.id.charAt(1))] =
@@ -452,7 +503,7 @@ function checkIncrementedSquares(square, increment, charIncrement, typePiece) {
           document.getElementById(`${square.id.charAt(0)}${index}`) !== null
             ? document.getElementById(`${square.id.charAt(0)}${index}`)
             : document.getElementById(
-                `${square.id.charAt(0)}${square.id.charAt(1)}`
+                `${square.id.charAt(0)}${square.id.charAt(1)}`,
               );
 
         unOccupiedSquares[i] = object.classList.contains("occupied")
@@ -479,13 +530,13 @@ function checkIncrementedSquares(square, increment, charIncrement, typePiece) {
       for (let index = square.id.charCodeAt(0); index <= 104; index++) {
         object =
           document.getElementById(
-            `${String.fromCharCode(index)}${square.id.charAt(1)}`
+            `${String.fromCharCode(index)}${square.id.charAt(1)}`,
           ) !== null
             ? document.getElementById(
-                `${String.fromCharCode(index)}${square.id.charAt(1)}`
+                `${String.fromCharCode(index)}${square.id.charAt(1)}`,
               )
             : document.getElementById(
-                `${square.id.charAt(0)}${square.id.charAt(1)}`
+                `${square.id.charAt(0)}${square.id.charAt(1)}`,
               );
 
         unOccupiedSquares[i] = object.classList.contains("occupied")
@@ -508,13 +559,13 @@ function checkIncrementedSquares(square, increment, charIncrement, typePiece) {
       for (let index = square.id.charCodeAt(0); index >= 97; index--) {
         object =
           document.getElementById(
-            `${String.fromCharCode(index)}${square.id.charAt(1)}`
+            `${String.fromCharCode(index)}${square.id.charAt(1)}`,
           ) !== null
             ? document.getElementById(
-                `${String.fromCharCode(index)}${square.id.charAt(1)}`
+                `${String.fromCharCode(index)}${square.id.charAt(1)}`,
               )
             : document.getElementById(
-                `${square.id.charAt(0)}${square.id.charAt(1)}`
+                `${square.id.charAt(0)}${square.id.charAt(1)}`,
               );
 
         unOccupiedSquares[i] = object.classList.contains("occupied")
@@ -559,9 +610,9 @@ function removeValidatedSquares() {
               },
               false,
               null,
-              null
+              null,
             ),
-            checkValidateClass
+            checkValidateClass,
           );
         }
       });
@@ -570,7 +621,7 @@ function removeValidatedSquares() {
 }
 
 function validateRookSquares(positionPiece, typePiece) {
-  const compassSquares = checkCompassSquares(positionPiece);
+  const compassSquares = checkCompassSquares(positionPiece, 0);
 
   const availableSquares = compassSquares[0];
   const verticalSquares = compassSquares[1];
@@ -638,6 +689,37 @@ function validateRookSquares(positionPiece, typePiece) {
   }
 }
 
+function validateBishopSquares(positionPiece, typePiece) {
+  const compassSquares = checkCompassSquares(positionPiece, 1);
+  
+  const availableSquares = compassSquares[0];
+  const verticalSquares = compassSquares[1];
+  const horizontalSquares = compassSquares[2];
+  let checkIncrementedSquaresArr = 0;
+  let unOccupiedSquares = [];
+  let eatableSquares = [];
+
+  for (let index = 0; index < availableSquares.length; index++) {
+    const square = availableSquares[index];
+    const increment = verticalSquares[index];
+    const charIncrement = horizontalSquares[index];
+
+    if (square !== null) {
+      checkIncrementedSquaresArr = checkIncrementedSquares(
+        square,
+        increment,
+        charIncrement,
+        `-${typePiece.split("-")[1]}`
+      );
+
+      unOccupiedSquares.push(checkIncrementedSquaresArr[0]);
+      eatableSquares.push(checkIncrementedSquaresArr[1]);
+    }
+  }
+
+  console.log(unOccupiedSquares);
+}
+
 function validatePawnMovement(positionPiece, typePiece) {
   replaceUnoccupiedSquares(typePiece);
   desmarkEatableSquares();
@@ -651,10 +733,10 @@ function validatePawnMovement(positionPiece, typePiece) {
       if (element === square1.id.charAt(0)) {
         eatableSquares = [
           document.getElementById(
-            `${chessNotationColumns[i - 1]}${square1.id.charAt(1)}`
+            `${chessNotationColumns[i - 1]}${square1.id.charAt(1)}`,
           ),
           document.getElementById(
-            `${chessNotationColumns[i + 1]}${square1.id.charAt(1)}`
+            `${chessNotationColumns[i + 1]}${square1.id.charAt(1)}`,
           ),
         ];
       }
@@ -668,7 +750,7 @@ function validatePawnMovement(positionPiece, typePiece) {
     eatableSquare1,
     eatableSquare2,
     typePiece,
-    piceId
+    piceId,
   ) {
     const valOccupiedPiecesSquare1 =
       eatableSquare1 !== null && eatableSquare1.classList.contains("occupied")
@@ -762,9 +844,9 @@ function validatePawnMovement(positionPiece, typePiece) {
               },
               false,
               null,
-              null
+              null,
             ),
-            child
+            child,
           );
 
           let selectedElements = document.getElementsByClassName("selected");
@@ -785,20 +867,20 @@ function validatePawnMovement(positionPiece, typePiece) {
               },
               false,
               null,
-              null
-            )
+              null,
+            ),
           );
           eatableElements[index].classList.add("occupied");
           let passantPiece = !typePiece.includes("-w")
             ? document.getElementById(
                 `${eatableElements[index].id.charAt(0)}${
                   parseInt(eatableElements[index].id.charAt(1)) + 1
-                }`
+                }`,
               )
             : document.getElementById(
                 `${eatableElements[index].id.charAt(0)}${
                   parseInt(eatableElements[index].id.charAt(1)) - 1
-                }`
+                }`,
               );
           passantPiece.classList.remove("occupied");
           passantPiece.innerHTML = "";
@@ -872,7 +954,7 @@ function validatePawnMovement(positionPiece, typePiece) {
     eatableSquare1,
     eatableSquare2,
     typePiece,
-    positionPiece
+    positionPiece,
   );
 
   if (!nextSquareContent && !eatable) {
@@ -982,14 +1064,193 @@ function validatePawnMovement(positionPiece, typePiece) {
 
       if (
         checkPassantClass.classList.contains(
-          `passant-${typePiece.split("-")[1]}`
+          `passant-${typePiece.split("-")[1]}`,
         )
       )
         checkPassantClass.classList.remove(
-          `passant-${typePiece.split("-")[1]}`
+          `passant-${typePiece.split("-")[1]}`,
         );
     });
   });
+}
+
+function validateRookSquares(positionPiece, typePiece) {
+  const compassSquares = checkCompassSquares(positionPiece);
+
+  const availableSquares = compassSquares[0];
+  const verticalSquares = compassSquares[1];
+  const horizontalSquares = compassSquares[2];
+  let checkIncrementedSquaresArr = 0;
+  let unOccupiedSquares = [];
+  let eatableSquares = [];
+
+  for (let index = 0; index < availableSquares.length; index++) {
+    const square = availableSquares[index];
+    const increment = verticalSquares[index];
+    const charIncrement = horizontalSquares[index];
+
+    if (square !== null) {
+      checkIncrementedSquaresArr = checkIncrementedSquares(
+        square,
+        increment,
+        charIncrement,
+        `-${typePiece.split("-")[1]}`,
+      );
+
+      unOccupiedSquares.push(checkIncrementedSquaresArr[0]);
+      eatableSquares.push(checkIncrementedSquaresArr[1]);
+    }
+  }
+
+  if (
+    document
+      .getElementById(typePiece + "-" + positionPiece)
+      .classList.contains("selected")
+  ) {
+    firstValidatedElementS = [];
+
+    for (let index = 0; index < unOccupiedSquares.length; index++) {
+      if (unOccupiedSquares[index].length !== 0) {
+        unOccupiedSquares[index].forEach((square) => {
+          square.classList.add("validate");
+          square.innerHTML = '<div class="val-child"></div>';
+
+          square.addEventListener("click", () => {
+            drawSelectedPiece(positionPiece, typePiece, square.id);
+            flipBoard(typePiece);
+          });
+
+          firstValidatedElementS.push(square);
+        });
+      }
+    }
+
+    eatableSquares.forEach((eatableSquare) => {
+      if (eatableSquare.length !== 0) {
+        for (let index = 0; index < eatableSquare.length; index++) {
+          eatableSquare[index].classList.add("eatable");
+          eatableSquare[index].addEventListener("click", () => {
+            drawSelectedPiece(
+              positionPiece,
+              typePiece,
+              eatableSquare[index].id,
+            );
+            flipBoard(typePiece);
+          });
+        }
+      }
+    });
+  }
+}
+
+function validateBishopSquares(positionPiece, typePiece) {
+  let unOccupiedSquares = [];
+  let eatableSquares = [];
+  positionPieceXInt = parseInt(positionPiece[1]);
+  positionPieceYInt = parseInt(
+    chessNotationColumns.indexOf(`${positionPiece[0]}`),
+  );
+
+  y = positionPieceYInt < 8 ? positionPieceYInt : 7;
+
+  if (positionPieceXInt > 7) {
+    x = 0;
+  } else {
+    x = parseInt(chessNotationRows[positionPieceXInt]);
+  }
+
+  for (let i = -7; i < 8; i++) {
+    for (let j = -7; j < 8; j++) {
+      if (i == j) {
+        posy = j + y;
+        posx = i + x;
+        if (
+          posy < 8 &&
+          posx < 8 &&
+          posy >= 0 &&
+          posx >= 0 &&
+          (posx != x || posy != y)
+        ) {
+          let square = document.getElementById(
+            `${chessNotationColumns[posy]}${chessNotationRows[posx]}`,
+          );
+
+          if (square.classList.contains("occupied")) {
+            if (
+              !square.childNodes[0].classList[0].includes(
+                `-${typePiece.split("-")[1]}`,
+              )
+            ) {
+              eatableSquares.push(square);
+            }
+          } else if (!square.classList.contains("occupied")) {
+            unOccupiedSquares.push(square);
+          }
+        }
+      }
+    }
+  }
+
+  let l = 0;
+  console.log("hola00")
+  for (let k = 7; k > -8; k--) {
+    y2 = l - 7 + y;
+    x2 = k + x;
+    console.log("hola0");
+    if (y2 < 8 && x2 < 8 && x2 >= 0 && y2 >= 0 && (x2 != x || y2 != y)) {
+      console.log("hola");
+      let square = document.getElementById(
+        `${chessNotationColumns[y2]}${chessNotationRows[x2]}`,
+      );
+
+      if (square.classList.contains("occupied")) {
+        if (
+          !square.childNodes[0].classList[0].includes(
+            `-${typePiece.split("-")[1]}`,
+          )
+        ) {
+          eatableSquares.push(square);
+        }
+      } else if (!square.classList.contains("occupied")) {
+        unOccupiedSquares.push(square);
+      }
+    }
+    l += 1;
+  }
+  console.log("hola3");
+
+  console.log(eatableSquares, unOccupiedSquares);
+
+  if (
+    document
+      .getElementById(typePiece + "-" + positionPiece)
+      .classList.contains("selected")
+  ) {
+    firstValidatedElementS = [];
+
+    if (unOccupiedSquares.length !== 0) {
+      unOccupiedSquares.forEach((square) => {
+        square.classList.add("validate");
+        square.innerHTML = '<div class="val-child"></div>';
+
+        square.addEventListener("click", () => {
+          drawSelectedPiece(positionPiece, typePiece, square.id);
+          flipBoard(typePiece);
+        });
+
+        firstValidatedElementS.push(square);
+      });
+    }
+    if (eatableSquares.length !== 0) {
+      eatableSquares.forEach((eatableSquare) => {
+        eatableSquare.classList.add("eatable");
+        eatableSquare.addEventListener("click", () => {
+          drawSelectedPiece(positionPiece, typePiece, eatableSquare.id);
+          flipBoard(typePiece);
+        });
+      });
+    }
+  }
 }
 
 function validateRookMovement(positionPiece, typePiece) {
@@ -1003,12 +1264,14 @@ function validateKnightMovement(positionPiece, typePiece) {
   replaceUnoccupiedSquares(typePiece);
   desmarkEatableSquares();
   removeValidatedSquares();
+  validateBishopSquares(positionPiece, typePiece);
 }
 
 function validateBishopMovement(positionPiece, typePiece) {
   replaceUnoccupiedSquares(typePiece);
   desmarkEatableSquares();
   removeValidatedSquares();
+  validateBishopSquares(positionPiece, typePiece);
 }
 
 function validateQueenMovement(positionPiece, typePiece) {
@@ -1096,16 +1359,16 @@ function setPlayersTurn(startEventListeners, pieceColorType) {
               },
               false,
               null,
-              null
+              null,
             ),
-            pieces[index]
+            pieces[index],
           );
           if (startEventListeners) {
             const selectedPiece = document.getElementById(
-              `${pieces[index].id}`
+              `${pieces[index].id}`,
             );
             selectedPiece.addEventListener("click", () =>
-              getMovements(selectedPiece)
+              getMovements(selectedPiece),
             );
           }
         }
@@ -1122,16 +1385,16 @@ function setPlayersTurn(startEventListeners, pieceColorType) {
               },
               false,
               null,
-              null
+              null,
             ),
-            pieces[index]
+            pieces[index],
           );
           if (startEventListeners) {
             const selectedPiece = document.getElementById(
-              `${pieces[index].id}`
+              `${pieces[index].id}`,
             );
             selectedPiece.addEventListener("click", () =>
-              getMovements(selectedPiece)
+              getMovements(selectedPiece),
             );
           }
         }
