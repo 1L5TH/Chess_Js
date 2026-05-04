@@ -370,236 +370,24 @@ function flipBoard(typePiece) {
   setPlayersTurn(true, colorSwitch);
 }
 
-function checkCompassSquares(positionPiece, cross) {
-  const upSquare = document.getElementById(
-    `${positionPiece.charAt(0)}${parseInt(positionPiece.charAt(1)) + 1}`,
-  );
-
-  const rightSquare = document.getElementById(
-    `${String.fromCharCode(
-      positionPiece.charCodeAt(0) + 1,
-    )}${positionPiece.charAt(1)}`,
-  );
-
-  const leftSquare = document.getElementById(
-    `${String.fromCharCode(
-      positionPiece.charCodeAt(0) - 1,
-    )}${positionPiece.charAt(1)}`,
-  );
-
-  const downSquare = document.getElementById(
-    `${positionPiece.charAt(0)}${parseInt(positionPiece.charAt(1)) - 1}`,
-  );
-
-  const upRightSquare = document.getElementById(
-    `${String.fromCharCode(positionPiece.charCodeAt(0) + 1)}${
-      parseInt(positionPiece.charAt(1)) + 1
-    }`,
-  );
-
-  const upLeftSquare = document.getElementById(
-    `${String.fromCharCode(positionPiece.charCodeAt(0) - 1)}${
-      parseInt(positionPiece.charAt(1)) + 1
-    }`,
-  );
-
-  const downRightSquare = document.getElementById(
-    `${String.fromCharCode(positionPiece.charCodeAt(0) + 1)}${
-      parseInt(positionPiece.charAt(1)) - 1
-    }`,
-  );
-
-  const downLeftSquare = document.getElementById(
-    `${String.fromCharCode(positionPiece.charCodeAt(0) - 1)}${
-      parseInt(positionPiece.charAt(1)) - 1
-    }`,
-  );
-
-  const validSquares =
-    cross === 0
-      ? [upSquare, rightSquare, leftSquare, downSquare]
-      : cross === 1
-        ? [upRightSquare, upLeftSquare, downRightSquare, downLeftSquare]
-        : [
-            upSquare,
-            rightSquare,
-            leftSquare,
-            downSquare,
-            upRightSquare,
-            upLeftSquare,
-            downRightSquare,
-            downLeftSquare,
-          ];
-
-  const icrementSquares =
-    cross === 0
-      ? [1, null, null, -1]
-      : cross === 1
-        ? [1, 1, -1, -1]
-        : [1, null, null, -1, 1, 1, -1, -1];
-
-  const charIncrementSquares =
-    cross === 0
-      ? [null, 1, -1, null]
-      : cross === 1
-        ? [1, 1, -1, -1]
-        : [null, 1, -1, null, 1, 1, -1, -1];
-
-  let increment = [];
-  let charIncrement = [];
-
-  for (let index = 0; index < validSquares.length; index++) {
-    increment[index] = icrementSquares[index];
-    charIncrement[index] = charIncrementSquares[index];
-  }
-
-  return [validSquares, increment, charIncrement];
-}
-
-function filterUntilNull(arr) {
-  let result = [];
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i] === null) break;
-    result[i] = arr[i];
-  }
-  return result;
-}
-
-function checkIncrementedSquares(square, increment, charIncrement, typePiece) {
-  let unOccupiedSquares = [];
-  let eatableSquares = [];
-  let object;
-  let count = 0;
-
-  if (increment !== null) {
-    if (increment === 1) {
-      for (let index = parseInt(square.id.charAt(1)); index <= 8; index++) {
-        object =
-          document.getElementById(`${square.id.charAt(0)}${index}`) !== null
-            ? document.getElementById(`${square.id.charAt(0)}${index}`)
-            : document.getElementById(
-                `${square.id.charAt(0)}${square.id.charAt(1)}`,
-              );
-
-        unOccupiedSquares[index - parseInt(square.id.charAt(1))] =
-          object.classList.contains("occupied") ? null : object;
-
-        if (
-          object.classList.contains("occupied") &&
-          object !== null &&
-          count === 0
-        ) {
-          if (!object.childNodes[0].classList[0].includes(typePiece)) {
-            eatableSquares.push(object);
-          }
-          count++;
-        }
-      }
-    } else if (increment === -1) {
-      let i = 0;
-
-      for (let index = parseInt(square.id.charAt(1)); index >= 1; index--) {
-        object =
-          document.getElementById(`${square.id.charAt(0)}${index}`) !== null
-            ? document.getElementById(`${square.id.charAt(0)}${index}`)
-            : document.getElementById(
-                `${square.id.charAt(0)}${square.id.charAt(1)}`,
-              );
-
-        unOccupiedSquares[i] = object.classList.contains("occupied")
-          ? null
-          : object;
-        if (
-          object.classList.contains("occupied") &&
-          object !== null &&
-          count === 0
-        ) {
-          if (!object.childNodes[0].classList[0].includes(typePiece)) {
-            eatableSquares.push(object);
-          }
-          count++;
-        }
-        i++;
-      }
-    }
-  }
-
-  if (charIncrement !== null) {
-    if (charIncrement === 1) {
-      let i = 0;
-      for (let index = square.id.charCodeAt(0); index <= 104; index++) {
-        object =
-          document.getElementById(
-            `${String.fromCharCode(index)}${square.id.charAt(1)}`,
-          ) !== null
-            ? document.getElementById(
-                `${String.fromCharCode(index)}${square.id.charAt(1)}`,
-              )
-            : document.getElementById(
-                `${square.id.charAt(0)}${square.id.charAt(1)}`,
-              );
-
-        unOccupiedSquares[i] = object.classList.contains("occupied")
-          ? null
-          : object;
-        if (
-          object.classList.contains("occupied") &&
-          object !== null &&
-          count === 0
-        ) {
-          if (!object.childNodes[0].classList[0].includes(typePiece)) {
-            eatableSquares.push(object);
-          }
-          count++;
-        }
-        i++;
-      }
-    } else if (charIncrement === -1) {
-      let i = 0;
-      for (let index = square.id.charCodeAt(0); index >= 97; index--) {
-        object =
-          document.getElementById(
-            `${String.fromCharCode(index)}${square.id.charAt(1)}`,
-          ) !== null
-            ? document.getElementById(
-                `${String.fromCharCode(index)}${square.id.charAt(1)}`,
-              )
-            : document.getElementById(
-                `${square.id.charAt(0)}${square.id.charAt(1)}`,
-              );
-
-        unOccupiedSquares[i] = object.classList.contains("occupied")
-          ? null
-          : object;
-        if (
-          object.classList.contains("occupied") &&
-          object !== null &&
-          count === 0
-        ) {
-          if (!object.childNodes[0].classList[0].includes(typePiece)) {
-            eatableSquares.push(object);
-            // count++; para poder saltar piezas --> para el caballo
-          }
-          count++;
-        }
-        i++;
-      }
-    }
-  }
-
-  return [filterUntilNull(unOccupiedSquares), eatableSquares];
-}
-
-function setDiagonals(x, y, typePiece) {
+function setCompass(x, y, typePiece, cross) {
   let eatableSquares = [];
   let unOccupiedSquares = [];
 
-  const directions = [
-    [1, 1],
-    [-1, 1],
-    [1, -1],
-    [-1, -1],
-  ];
+  const directions =
+    cross == 1
+      ? [
+          [1, 1],
+          [-1, 1],
+          [1, -1],
+          [-1, -1],
+        ]
+      : [
+          [1, 0],
+          [-1, 0],
+          [0, 1],
+          [0, -1],
+        ];
 
   for (let dir of directions) {
     let currentX = x + dir[0];
@@ -659,76 +447,7 @@ function removeValidatedSquares() {
   }
 }
 
-function validateRookSquares(positionPiece, typePiece) {
-  const compassSquares = checkCompassSquares(positionPiece, 0);
-
-  const availableSquares = compassSquares[0];
-  const verticalSquares = compassSquares[1];
-  const horizontalSquares = compassSquares[2];
-  let checkIncrementedSquaresArr = 0;
-  let unOccupiedSquares = [];
-  let eatableSquares = [];
-
-  for (let index = 0; index < availableSquares.length; index++) {
-    const square = availableSquares[index];
-    const increment = verticalSquares[index];
-    const charIncrement = horizontalSquares[index];
-
-    if (square !== null) {
-      checkIncrementedSquaresArr = checkIncrementedSquares(
-        square,
-        increment,
-        charIncrement,
-        `-${typePiece.split("-")[1]}`,
-      );
-
-      unOccupiedSquares.push(checkIncrementedSquaresArr[0]);
-      eatableSquares.push(checkIncrementedSquaresArr[1]);
-    }
-  }
-
-  if (
-    document
-      .getElementById(typePiece + "-" + positionPiece)
-      .classList.contains("selected")
-  ) {
-    firstValidatedElementS = [];
-
-    for (let index = 0; index < unOccupiedSquares.length; index++) {
-      if (unOccupiedSquares[index].length !== 0) {
-        unOccupiedSquares[index].forEach((square) => {
-          square.classList.add("validate");
-          square.innerHTML = '<div class="val-child"></div>';
-
-          square.addEventListener("click", () => {
-            drawSelectedPiece(positionPiece, typePiece, square.id);
-            flipBoard(typePiece);
-          });
-
-          firstValidatedElementS.push(square);
-        });
-      }
-    }
-
-    eatableSquares.forEach((eatableSquare) => {
-      if (eatableSquare.length !== 0) {
-        for (let index = 0; index < eatableSquare.length; index++) {
-          eatableSquare[index].classList.add("eatable");
-          eatableSquare[index].addEventListener("click", () => {
-            drawSelectedPiece(
-              positionPiece,
-              typePiece,
-              eatableSquare[index].id,
-            );
-            flipBoard(typePiece);
-          });
-        }
-      }
-    });
-  }
-}
-
-function validateBishopSquares(positionPiece, typePiece) {
+function validateCompassSquares(positionPiece, typePiece, cross) {
   let unOccupiedSquares = [];
   let eatableSquares = [];
 
@@ -743,7 +462,7 @@ function validateBishopSquares(positionPiece, typePiece) {
     x = parseInt(chessNotationRows[positionPieceXInt]);
   }
 
-  diagonals = setDiagonals(x, y, `-${typePiece.split("-")[1]}`);
+  diagonals = setCompass(x, y, `-${typePiece.split("-")[1]}`, cross);
   eatableSquares = diagonals[0];
   unOccupiedSquares = diagonals[1];
 
@@ -1122,7 +841,7 @@ function validateRookMovement(positionPiece, typePiece) {
   replaceUnoccupiedSquares(typePiece);
   desmarkEatableSquares();
   removeValidatedSquares();
-  validateRookSquares(positionPiece, typePiece);
+  validateCompassSquares(positionPiece, typePiece, 0);
 }
 
 function validateKnightMovement(positionPiece, typePiece) {
@@ -1135,15 +854,15 @@ function validateBishopMovement(positionPiece, typePiece) {
   replaceUnoccupiedSquares(typePiece);
   desmarkEatableSquares();
   removeValidatedSquares();
-  validateBishopSquares(positionPiece, typePiece);
+  validateCompassSquares(positionPiece, typePiece, 1);
 }
 
 function validateQueenMovement(positionPiece, typePiece) {
   replaceUnoccupiedSquares(typePiece);
   desmarkEatableSquares();
   removeValidatedSquares();
-  validateRookSquares(positionPiece, typePiece);
-  validateBishopSquares(positionPiece, typePiece);
+  validateCompassSquares(positionPiece, typePiece, 1);
+  validateCompassSquares(positionPiece, typePiece, 0);
 }
 
 function validateKingMovement(positionPiece, typePiece) {
