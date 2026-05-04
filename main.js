@@ -139,8 +139,8 @@ function startPiecesPositions() {
   const W_knight_g1 = document.getElementById("g1");
   const B_knight_b8 = document.getElementById("b8");
   const B_knight_g8 = document.getElementById("g8");
-  const W_bishop_c1 = document.getElementById("d4"); // c1
-  const W_bishop_f1 = document.getElementById("f1");
+  const W_bishop_c1 = document.getElementById("c1");
+  const W_bishop_f1 = document.getElementById("f4");
   const B_bishop_c8 = document.getElementById("c8");
   const B_bishop_f8 = document.getElementById("f8");
   const W_queen_d1 = document.getElementById("d1");
@@ -621,7 +621,7 @@ function removeValidatedSquares() {
 }
 
 function validateRookSquares(positionPiece, typePiece) {
-  const compassSquares = checkCompassSquares(positionPiece, 0);
+  const compassSquares = checkCompassSquares(positionPiece,0);
 
   const availableSquares = compassSquares[0];
   const verticalSquares = compassSquares[1];
@@ -640,7 +640,7 @@ function validateRookSquares(positionPiece, typePiece) {
         square,
         increment,
         charIncrement,
-        `-${typePiece.split("-")[1]}`
+        `-${typePiece.split("-")[1]}`,
       );
 
       unOccupiedSquares.push(checkIncrementedSquaresArr[0]);
@@ -679,7 +679,7 @@ function validateRookSquares(positionPiece, typePiece) {
             drawSelectedPiece(
               positionPiece,
               typePiece,
-              eatableSquare[index].id
+              eatableSquare[index].id,
             );
             flipBoard(typePiece);
           });
@@ -690,16 +690,16 @@ function validateRookSquares(positionPiece, typePiece) {
 }
 
 function validateBishopSquares(positionPiece, typePiece) {
-  const compassSquares = checkCompassSquares(positionPiece, 1);
+
+
   
-  const availableSquares = compassSquares[0];
-  const verticalSquares = compassSquares[1];
-  const horizontalSquares = compassSquares[2];
+ const compassSquares = checkCompassSquares(positionPiece, 1)[0];
+  
   let checkIncrementedSquaresArr = 0;
   let unOccupiedSquares = [];
   let eatableSquares = [];
 
-  for (let index = 0; index < availableSquares.length; index++) {
+  /*for (let index = 0; index < availableSquares.length; index++) {
     const square = availableSquares[index];
     const increment = verticalSquares[index];
     const charIncrement = horizontalSquares[index];
@@ -715,9 +715,113 @@ function validateBishopSquares(positionPiece, typePiece) {
       unOccupiedSquares.push(checkIncrementedSquaresArr[0]);
       eatableSquares.push(checkIncrementedSquaresArr[1]);
     }
+  }*/
+
+  positionPieceXInt = parseInt(positionPiece[1]);
+  positionPieceYInt = parseInt(
+    chessNotationColumns.indexOf(`${positionPiece[0]}`),
+  );
+
+  y = positionPieceYInt < 8 ? positionPieceYInt : 7;
+
+  if (positionPieceXInt > 7) {
+    x = 0;
+  } else {
+    x = parseInt(chessNotationRows[positionPieceXInt]);
   }
 
-  console.log(unOccupiedSquares);
+  for (let i = -7; i < 8; i++) {
+    for (let j = -7; j < 8; j++) {
+      if (i == j) {
+        posy = j + y;
+        posx = i + x;
+        if (
+          posy < 8 &&
+          posx < 8 &&
+          posy >= 0 &&
+          posx >= 0 &&
+          (posx != x || posy != y)
+        ) {
+          let square = document.getElementById(
+            `${chessNotationColumns[posy]}${chessNotationRows[posx]}`,
+          );
+
+          if (square.classList.contains("occupied")) {
+            if (
+              !square.childNodes[0].classList[0].includes(
+                `-${typePiece.split("-")[1]}`,
+              )
+            ) {
+              eatableSquares.push(square);
+            }
+          } else if (!square.classList.contains("occupied")) {
+            unOccupiedSquares.push(square);
+          }
+        }
+      }
+    }
+  }
+
+  let l = 0;
+  console.log("hola00")
+  for (let k = 7; k > -8; k--) {
+    y2 = l - 7 + y;
+    x2 = k + x;
+    console.log("hola0");
+    if (y2 < 8 && x2 < 8 && x2 >= 0 && y2 >= 0 && (x2 != x || y2 != y)) {
+      console.log("hola");
+      let square = document.getElementById(
+        `${chessNotationColumns[y2]}${chessNotationRows[x2]}`,
+      );
+
+      if (square.classList.contains("occupied")) {
+        if (
+          !square.childNodes[0].classList[0].includes(
+            `-${typePiece.split("-")[1]}`,
+          )
+        ) {
+          eatableSquares.push(square);
+        }
+      } else if (!square.classList.contains("occupied")) {
+        unOccupiedSquares.push(square);
+      }
+    }
+    l += 1;
+  }
+  console.log("hola3");
+
+  console.log(eatableSquares, unOccupiedSquares);
+
+  if (
+    document
+      .getElementById(typePiece + "-" + positionPiece)
+      .classList.contains("selected")
+  ) {
+    firstValidatedElementS = [];
+
+    if (unOccupiedSquares.length !== 0) {
+      unOccupiedSquares.forEach((square) => {
+        square.classList.add("validate");
+        square.innerHTML = '<div class="val-child"></div>';
+
+        square.addEventListener("click", () => {
+          drawSelectedPiece(positionPiece, typePiece, square.id);
+          flipBoard(typePiece);
+        });
+
+        firstValidatedElementS.push(square);
+      });
+    }
+    if (eatableSquares.length !== 0) {
+      eatableSquares.forEach((eatableSquare) => {
+        eatableSquare.classList.add("eatable");
+        eatableSquare.addEventListener("click", () => {
+          drawSelectedPiece(positionPiece, typePiece, eatableSquare.id);
+          flipBoard(typePiece);
+        });
+      });
+    }
+  }
 }
 
 function validatePawnMovement(positionPiece, typePiece) {
@@ -1072,185 +1176,6 @@ function validatePawnMovement(positionPiece, typePiece) {
         );
     });
   });
-}
-
-function validateRookSquares(positionPiece, typePiece) {
-  const compassSquares = checkCompassSquares(positionPiece);
-
-  const availableSquares = compassSquares[0];
-  const verticalSquares = compassSquares[1];
-  const horizontalSquares = compassSquares[2];
-  let checkIncrementedSquaresArr = 0;
-  let unOccupiedSquares = [];
-  let eatableSquares = [];
-
-  for (let index = 0; index < availableSquares.length; index++) {
-    const square = availableSquares[index];
-    const increment = verticalSquares[index];
-    const charIncrement = horizontalSquares[index];
-
-    if (square !== null) {
-      checkIncrementedSquaresArr = checkIncrementedSquares(
-        square,
-        increment,
-        charIncrement,
-        `-${typePiece.split("-")[1]}`,
-      );
-
-      unOccupiedSquares.push(checkIncrementedSquaresArr[0]);
-      eatableSquares.push(checkIncrementedSquaresArr[1]);
-    }
-  }
-
-  if (
-    document
-      .getElementById(typePiece + "-" + positionPiece)
-      .classList.contains("selected")
-  ) {
-    firstValidatedElementS = [];
-
-    for (let index = 0; index < unOccupiedSquares.length; index++) {
-      if (unOccupiedSquares[index].length !== 0) {
-        unOccupiedSquares[index].forEach((square) => {
-          square.classList.add("validate");
-          square.innerHTML = '<div class="val-child"></div>';
-
-          square.addEventListener("click", () => {
-            drawSelectedPiece(positionPiece, typePiece, square.id);
-            flipBoard(typePiece);
-          });
-
-          firstValidatedElementS.push(square);
-        });
-      }
-    }
-
-    eatableSquares.forEach((eatableSquare) => {
-      if (eatableSquare.length !== 0) {
-        for (let index = 0; index < eatableSquare.length; index++) {
-          eatableSquare[index].classList.add("eatable");
-          eatableSquare[index].addEventListener("click", () => {
-            drawSelectedPiece(
-              positionPiece,
-              typePiece,
-              eatableSquare[index].id,
-            );
-            flipBoard(typePiece);
-          });
-        }
-      }
-    });
-  }
-}
-
-function validateBishopSquares(positionPiece, typePiece) {
-  let unOccupiedSquares = [];
-  let eatableSquares = [];
-  positionPieceXInt = parseInt(positionPiece[1]);
-  positionPieceYInt = parseInt(
-    chessNotationColumns.indexOf(`${positionPiece[0]}`),
-  );
-
-  y = positionPieceYInt < 8 ? positionPieceYInt : 7;
-
-  if (positionPieceXInt > 7) {
-    x = 0;
-  } else {
-    x = parseInt(chessNotationRows[positionPieceXInt]);
-  }
-
-  for (let i = -7; i < 8; i++) {
-    for (let j = -7; j < 8; j++) {
-      if (i == j) {
-        posy = j + y;
-        posx = i + x;
-        if (
-          posy < 8 &&
-          posx < 8 &&
-          posy >= 0 &&
-          posx >= 0 &&
-          (posx != x || posy != y)
-        ) {
-          let square = document.getElementById(
-            `${chessNotationColumns[posy]}${chessNotationRows[posx]}`,
-          );
-
-          if (square.classList.contains("occupied")) {
-            if (
-              !square.childNodes[0].classList[0].includes(
-                `-${typePiece.split("-")[1]}`,
-              )
-            ) {
-              eatableSquares.push(square);
-            }
-          } else if (!square.classList.contains("occupied")) {
-            unOccupiedSquares.push(square);
-          }
-        }
-      }
-    }
-  }
-
-  let l = 0;
-  console.log("hola00")
-  for (let k = 7; k > -8; k--) {
-    y2 = l - 7 + y;
-    x2 = k + x;
-    console.log("hola0");
-    if (y2 < 8 && x2 < 8 && x2 >= 0 && y2 >= 0 && (x2 != x || y2 != y)) {
-      console.log("hola");
-      let square = document.getElementById(
-        `${chessNotationColumns[y2]}${chessNotationRows[x2]}`,
-      );
-
-      if (square.classList.contains("occupied")) {
-        if (
-          !square.childNodes[0].classList[0].includes(
-            `-${typePiece.split("-")[1]}`,
-          )
-        ) {
-          eatableSquares.push(square);
-        }
-      } else if (!square.classList.contains("occupied")) {
-        unOccupiedSquares.push(square);
-      }
-    }
-    l += 1;
-  }
-  console.log("hola3");
-
-  console.log(eatableSquares, unOccupiedSquares);
-
-  if (
-    document
-      .getElementById(typePiece + "-" + positionPiece)
-      .classList.contains("selected")
-  ) {
-    firstValidatedElementS = [];
-
-    if (unOccupiedSquares.length !== 0) {
-      unOccupiedSquares.forEach((square) => {
-        square.classList.add("validate");
-        square.innerHTML = '<div class="val-child"></div>';
-
-        square.addEventListener("click", () => {
-          drawSelectedPiece(positionPiece, typePiece, square.id);
-          flipBoard(typePiece);
-        });
-
-        firstValidatedElementS.push(square);
-      });
-    }
-    if (eatableSquares.length !== 0) {
-      eatableSquares.forEach((eatableSquare) => {
-        eatableSquare.classList.add("eatable");
-        eatableSquare.addEventListener("click", () => {
-          drawSelectedPiece(positionPiece, typePiece, eatableSquare.id);
-          flipBoard(typePiece);
-        });
-      });
-    }
-  }
 }
 
 function validateRookMovement(positionPiece, typePiece) {
