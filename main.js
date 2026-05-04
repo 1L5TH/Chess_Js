@@ -140,7 +140,7 @@ function startPiecesPositions() {
   const B_knight_b8 = document.getElementById("b8");
   const B_knight_g8 = document.getElementById("g8");
   const W_bishop_c1 = document.getElementById("c1");
-  const W_bishop_f1 = document.getElementById("f4");
+  const W_bishop_f1 = document.getElementById("f1");
   const B_bishop_c8 = document.getElementById("c8");
   const B_bishop_f8 = document.getElementById("f8");
   const W_queen_d1 = document.getElementById("d1");
@@ -394,56 +394,56 @@ function checkCompassSquares(positionPiece, cross) {
   const upRightSquare = document.getElementById(
     `${String.fromCharCode(positionPiece.charCodeAt(0) + 1)}${
       parseInt(positionPiece.charAt(1)) + 1
-    }`
+    }`,
   );
 
   const upLeftSquare = document.getElementById(
     `${String.fromCharCode(positionPiece.charCodeAt(0) - 1)}${
       parseInt(positionPiece.charAt(1)) + 1
-    }`
+    }`,
   );
 
   const downRightSquare = document.getElementById(
     `${String.fromCharCode(positionPiece.charCodeAt(0) + 1)}${
       parseInt(positionPiece.charAt(1)) - 1
-    }`
+    }`,
   );
 
   const downLeftSquare = document.getElementById(
     `${String.fromCharCode(positionPiece.charCodeAt(0) - 1)}${
       parseInt(positionPiece.charAt(1)) - 1
-    }`
+    }`,
   );
 
   const validSquares =
     cross === 0
       ? [upSquare, rightSquare, leftSquare, downSquare]
       : cross === 1
-      ? [upRightSquare, upLeftSquare, downRightSquare, downLeftSquare]
-      : [
-          upSquare,
-          rightSquare,
-          leftSquare,
-          downSquare,
-          upRightSquare,
-          upLeftSquare,
-          downRightSquare,
-          downLeftSquare,
-        ];
+        ? [upRightSquare, upLeftSquare, downRightSquare, downLeftSquare]
+        : [
+            upSquare,
+            rightSquare,
+            leftSquare,
+            downSquare,
+            upRightSquare,
+            upLeftSquare,
+            downRightSquare,
+            downLeftSquare,
+          ];
 
   const icrementSquares =
     cross === 0
       ? [1, null, null, -1]
       : cross === 1
-      ? [1, 1, -1, -1]
-      : [1, null, null, -1, 1, 1, -1, -1];
+        ? [1, 1, -1, -1]
+        : [1, null, null, -1, 1, 1, -1, -1];
 
   const charIncrementSquares =
     cross === 0
       ? [null, 1, -1, null]
       : cross === 1
-      ? [1, 1, -1, -1]
-      : [null, 1, -1, null, 1, 1, -1, -1];
+        ? [1, 1, -1, -1]
+        : [null, 1, -1, null, 1, 1, -1, -1];
 
   let increment = [];
   let charIncrement = [];
@@ -590,6 +590,45 @@ function checkIncrementedSquares(square, increment, charIncrement, typePiece) {
   return [filterUntilNull(unOccupiedSquares), eatableSquares];
 }
 
+function setDiagonals(x, y, typePiece) {
+  let eatableSquares = [];
+  let unOccupiedSquares = [];
+
+  const directions = [
+    [1, 1],
+    [-1, 1],
+    [1, -1],
+    [-1, -1],
+  ];
+
+  for (let dir of directions) {
+    let currentX = x + dir[0];
+    let currentY = y + dir[1];
+
+    while (currentX >= 0 && currentX < 8 && currentY >= 0 && currentY < 8) {
+      let str = `${chessNotationColumns[currentY]}${chessNotationRows[currentX]}`;
+      let square = document.getElementById(str);
+
+      if (!square) break;
+
+      if (square.classList.contains("occupied")) {
+        if (!square.childNodes[0].classList[0].includes(typePiece)) {
+          eatableSquares.push(square);
+        }
+
+        break;
+      } else {
+        unOccupiedSquares.push(square);
+      }
+
+      currentX += dir[0];
+      currentY += dir[1];
+    }
+  }
+
+  return [eatableSquares, unOccupiedSquares];
+}
+
 function removeValidatedSquares() {
   if (firstValidatedElementS !== null) {
     chessboardDefined.forEach((row) => {
@@ -621,7 +660,7 @@ function removeValidatedSquares() {
 }
 
 function validateRookSquares(positionPiece, typePiece) {
-  const compassSquares = checkCompassSquares(positionPiece,0);
+  const compassSquares = checkCompassSquares(positionPiece, 0);
 
   const availableSquares = compassSquares[0];
   const verticalSquares = compassSquares[1];
@@ -690,107 +729,23 @@ function validateRookSquares(positionPiece, typePiece) {
 }
 
 function validateBishopSquares(positionPiece, typePiece) {
-
-
-  
- const compassSquares = checkCompassSquares(positionPiece, 1)[0];
-  
-  let checkIncrementedSquaresArr = 0;
   let unOccupiedSquares = [];
   let eatableSquares = [];
-
-  /*for (let index = 0; index < availableSquares.length; index++) {
-    const square = availableSquares[index];
-    const increment = verticalSquares[index];
-    const charIncrement = horizontalSquares[index];
-
-    if (square !== null) {
-      checkIncrementedSquaresArr = checkIncrementedSquares(
-        square,
-        increment,
-        charIncrement,
-        `-${typePiece.split("-")[1]}`
-      );
-
-      unOccupiedSquares.push(checkIncrementedSquaresArr[0]);
-      eatableSquares.push(checkIncrementedSquaresArr[1]);
-    }
-  }*/
 
   positionPieceXInt = parseInt(positionPiece[1]);
   positionPieceYInt = parseInt(
     chessNotationColumns.indexOf(`${positionPiece[0]}`),
   );
-
+  x = 0;
   y = positionPieceYInt < 8 ? positionPieceYInt : 7;
 
-  if (positionPieceXInt > 7) {
-    x = 0;
-  } else {
+  if (positionPieceXInt < 7) {
     x = parseInt(chessNotationRows[positionPieceXInt]);
   }
 
-  for (let i = -7; i < 8; i++) {
-    for (let j = -7; j < 8; j++) {
-      if (i == j) {
-        posy = j + y;
-        posx = i + x;
-        if (
-          posy < 8 &&
-          posx < 8 &&
-          posy >= 0 &&
-          posx >= 0 &&
-          (posx != x || posy != y)
-        ) {
-          let square = document.getElementById(
-            `${chessNotationColumns[posy]}${chessNotationRows[posx]}`,
-          );
-
-          if (square.classList.contains("occupied")) {
-            if (
-              !square.childNodes[0].classList[0].includes(
-                `-${typePiece.split("-")[1]}`,
-              )
-            ) {
-              eatableSquares.push(square);
-            }
-          } else if (!square.classList.contains("occupied")) {
-            unOccupiedSquares.push(square);
-          }
-        }
-      }
-    }
-  }
-
-  let l = 0;
-  console.log("hola00")
-  for (let k = 7; k > -8; k--) {
-    y2 = l - 7 + y;
-    x2 = k + x;
-    console.log("hola0");
-    if (y2 < 8 && x2 < 8 && x2 >= 0 && y2 >= 0 && (x2 != x || y2 != y)) {
-      console.log("hola");
-      let square = document.getElementById(
-        `${chessNotationColumns[y2]}${chessNotationRows[x2]}`,
-      );
-
-      if (square.classList.contains("occupied")) {
-        if (
-          !square.childNodes[0].classList[0].includes(
-            `-${typePiece.split("-")[1]}`,
-          )
-        ) {
-          eatableSquares.push(square);
-        }
-      } else if (!square.classList.contains("occupied")) {
-        unOccupiedSquares.push(square);
-      }
-    }
-    l += 1;
-  }
-  console.log("hola3");
-
-  console.log(eatableSquares, unOccupiedSquares);
+  diagonals = setDiagonals(x, y, `-${typePiece.split("-")[1]}`);
+  eatableSquares = diagonals[0];
+  unOccupiedSquares = diagonals[1];
 
   if (
     document
@@ -1002,21 +957,6 @@ function validatePawnMovement(positionPiece, typePiece) {
     }
   }
 
-  // if ( whitePlayer ? typePiece.includes("-b") : typePiece.includes("-w")) return;
-  //
-  // const pieceDrag = document.getElementById('${typePiece}-${squareSelected}');
-  // const targetDrag = document.getElementById();
-  //
-  // pieceDrag .addEventListener('dragstart', function(event) {
-  //   console.log(event)
-  // })
-  // targetDrag.addEventListener('dragover', function(event) {
-  //   event.preventDefault()
-  // })
-  // targetDrag.addEventListener('drop', function(event) {
-  //   dropZone.prepend(card)
-  // })
-  //
   const increment = typePiece.includes("-w") ? 1 : -1;
   let verticalMovementIncrement = 0;
 
@@ -1189,7 +1129,6 @@ function validateKnightMovement(positionPiece, typePiece) {
   replaceUnoccupiedSquares(typePiece);
   desmarkEatableSquares();
   removeValidatedSquares();
-  validateBishopSquares(positionPiece, typePiece);
 }
 
 function validateBishopMovement(positionPiece, typePiece) {
@@ -1204,6 +1143,7 @@ function validateQueenMovement(positionPiece, typePiece) {
   desmarkEatableSquares();
   removeValidatedSquares();
   validateRookSquares(positionPiece, typePiece);
+  validateBishopSquares(positionPiece, typePiece);
 }
 
 function validateKingMovement(positionPiece, typePiece) {
