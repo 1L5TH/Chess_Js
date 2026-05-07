@@ -286,14 +286,14 @@ function desmarkEatableSquares() {
       if (checkEatableClass.classList.contains("eatable")) {
         checkEatableClass.classList.remove("eatable");
         if (checkEatableClass.children[0] !== undefined) {
-          let clasElements = checkEatableClass.classList;
+          let classElements = checkEatableClass.classList;
           let typePiece = checkEatableClass.children[0].classList[0];
 
           board.replaceChild(
             createNewElement(
               "div",
               {
-                class: `${clasElements}`,
+                class: `${classElements}`,
                 id: `${checkEatableClass.id}`,
               },
               true,
@@ -310,13 +310,13 @@ function desmarkEatableSquares() {
             checkEatableClass.classList.remove(eatablePassantClass);
           }
 
-          let clasElements = checkEatableClass.classList;
+          let classElements = checkEatableClass.classList;
 
           board.replaceChild(
             createNewElement(
               "div",
               {
-                class: `${clasElements}`,
+                class: `${classElements}`,
                 id: `${checkEatableClass.id}`,
               },
               false,
@@ -342,14 +342,14 @@ function replaceUnoccupiedSquares(typePiece) {
           `passant-${typePiece.split("-")[1]}`,
         )
       ) {
-        let clasElements = squareWithEventListener.classList;
+        let classElements = squareWithEventListener.classList;
 
         const board = squareWithEventListener.parentNode;
         board.replaceChild(
           createNewElement(
             "div",
             {
-              class: `${clasElements}`,
+              class: `${classElements}`,
               id: `${squareWithEventListener.id}`,
             },
             false,
@@ -368,6 +368,70 @@ function flipBoard(typePiece) {
   setPlayersTurn(false, typePiece.split("-")[1]);
   drawSavedPiecesPositions(typePiece);
   setPlayersTurn(true, colorSwitch);
+}
+
+function checkPromotion(square, typePiece) {
+  if (!typePiece.includes("pawn")) return false; // Retorna falso si no es peón
+
+  const isWhite = typePiece.includes("-w");
+  const targetRowIndex = parseInt(square.id.charAt(1));
+
+  if ((isWhite && targetRowIndex === 8) || (!isWhite && targetRowIndex === 1)) {
+    const child = square.querySelector("img");
+    if (!child) return false;
+
+    const promotionMenu = document.createElement("div");
+    promotionMenu.classList.add("promotion-menu");
+
+    promotionMenu.style.position = "absolute";
+    promotionMenu.style.left = "0";
+    promotionMenu.style.top = isWhite ? "0" : "auto";
+    promotionMenu.style.bottom = isWhite ? "auto" : "0";
+    promotionMenu.style.width = "100%";
+    promotionMenu.style.display = "flex";
+    promotionMenu.style.flexDirection = isWhite ? "column" : "column-reverse";
+    promotionMenu.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+    promotionMenu.style.boxShadow = "0px 4px 10px rgba(0,0,0,0.5)";
+    promotionMenu.style.zIndex = "1000";
+
+    square.style.position = "relative";
+
+    const colorSuffix = isWhite ? "-w" : "-b";
+    const pieces = ["queen", "rook", "bishop", "knight"];
+
+    pieces.forEach((pieceName) => {
+      const pieceType = `${pieceName}${colorSuffix}`;
+      const img = document.createElement("img");
+
+      img.src = `pieces/${pieceType}.svg`;
+      img.style.width = "100%";
+      img.style.height = "auto";
+      img.style.display = "block";
+      img.style.cursor = "pointer";
+
+      img.addEventListener("click", (e) => {
+        e.stopPropagation();
+        console.log(pieceType, typePiece);
+
+        child.src = `pieces/${pieceType}.svg`;
+
+        // Reemplazo seguro
+        child.classList.remove(typePiece);
+        child.classList.add(pieceType);
+        child.id = child.id.replace(typePiece, pieceType);
+        promotionMenu.remove();
+        flipBoard(typePiece);
+      });
+
+      promotionMenu.appendChild(img);
+    });
+
+    square.appendChild(promotionMenu);
+
+    return true; // ¡Avisamos que el menú se abrió!
+  }
+
+  return false; // No hubo coronación
 }
 
 function setCompass(x, y, typePiece, cross) {
@@ -426,13 +490,13 @@ function removeValidatedSquares() {
 
         if (checkValidateClass.classList.contains("validate")) {
           checkValidateClass.classList.remove("validate");
-          let clasElements = checkValidateClass.classList;
+          let classElements = checkValidateClass.classList;
 
           board.replaceChild(
             createNewElement(
               "div",
               {
-                class: `${clasElements}`,
+                class: `${classElements}`,
                 id: `${checkValidateClass.id}`,
               },
               false,
@@ -455,12 +519,8 @@ function validateCompassSquares(positionPiece, typePiece, cross) {
   positionPieceYInt = parseInt(
     chessNotationColumns.indexOf(`${positionPiece[0]}`),
   );
-  x = 0;
-  y = positionPieceYInt < 8 ? positionPieceYInt : 7;
-
-  if (positionPieceXInt < 7) {
-    x = parseInt(chessNotationRows[positionPieceXInt]);
-  }
+  let y = chessNotationColumns.indexOf(positionPiece.charAt(0));
+  let x = chessNotationRows.indexOf(positionPiece.charAt(1));
 
   diagonals = setCompass(x, y, `-${typePiece.split("-")[1]}`, cross);
   eatableSquares = diagonals[0];
@@ -632,7 +692,11 @@ function validatePawnMovement(positionPiece, typePiece) {
             selectedElements[index].parentNode.classList.remove("occupied");
             selectedElements[index].remove();
           }
-          flipBoard(typePiece);
+
+          let isPromoting = checkPromotion(eatableElements[index], typePiece);
+          if (!isPromoting) {
+            flipBoard(typePiece);
+          }
           return true;
         } else {
           eatableElements[index].appendChild(
@@ -669,7 +733,10 @@ function validatePawnMovement(positionPiece, typePiece) {
             selectedElements[index].remove();
           }
 
-          flipBoard(typePiece);
+          let isPromoting = checkPromotion(eatableElements[index], typePiece);
+          if (!isPromoting) {
+            flipBoard(typePiece);
+          }
           return true;
         }
       });
@@ -700,6 +767,11 @@ function validatePawnMovement(positionPiece, typePiece) {
     : [nextSquare];
 
   const square1 = document.getElementById(`${chessBoardGridItemId[0]}`);
+
+  if (!square1) {
+    return;
+  }
+
   let square2 = nextSquareIncremented
     ? document.getElementById(`${chessBoardGridItemId[1]}`)
     : null;
@@ -708,115 +780,123 @@ function validatePawnMovement(positionPiece, typePiece) {
   if (square2 !== null) {
     square2 = square2.classList.contains("occupied") ? null : square2;
   }
+  if (
+    document
+      .getElementById(typePiece + "-" + positionPiece)
+      .classList.contains("selected")
+  ) {
+    const eatableSquares = setEatableIndexes(square1);
+    const eatableSquare1 = eatableSquares[0];
+    const eatableSquare2 = eatableSquares[1];
 
-  const eatableSquares = setEatableIndexes(square1);
-  const eatableSquare1 = eatableSquares[0];
-  const eatableSquare2 = eatableSquares[1];
+    let eatable = checkEatablePieces(
+      eatableSquare1,
+      eatableSquare2,
+      typePiece,
+      positionPiece,
+    );
 
-  let eatable = checkEatablePieces(
-    eatableSquare1,
-    eatableSquare2,
-    typePiece,
-    positionPiece,
-  );
+    if (!nextSquareContent && !eatable) {
+      if (square2 !== null) {
+        if (
+          document
+            .getElementById(typePiece + "-" + positionPiece)
+            .classList.contains("selected")
+        ) {
+          if (firstValidateSquare !== null) {
+            firstValidateSquare[0].classList.remove("validate");
+            firstValidateSquare[1].classList.remove("validate");
+          }
 
-  if (!nextSquareContent && !eatable) {
-    if (square2 !== null) {
-      if (
-        document
-          .getElementById(typePiece + "-" + positionPiece)
-          .classList.contains("selected")
-      ) {
-        if (firstValidateSquare !== null) {
-          firstValidateSquare[0].classList.remove("validate");
-          firstValidateSquare[1].classList.remove("validate");
+          square1.classList.add("validate");
+          square1.innerHTML = '<div class="val-child"></div>';
+
+          square2.classList.add("validate");
+          square2.innerHTML = '<div class="val-child"></div>';
+
+          firstValidateSquare = [];
+          firstValidateSquare = [square1, square2];
+        } else {
+          if (
+            firstValidateSquare[0] === square1 &&
+            firstValidateSquare[1] === square2
+          ) {
+            firstValidateSquare = null;
+          }
+
+          square1.classList.remove("validate");
+          square1.innerHTML = "";
+          square2.classList.remove("validate");
+          square2.innerHTML = "";
         }
-
-        square1.classList.add("validate");
-        square1.innerHTML = '<div class="val-child"></div>';
-
-        square2.classList.add("validate");
-        square2.innerHTML = '<div class="val-child"></div>';
-
-        firstValidateSquare = [];
-        firstValidateSquare = [square1, square2];
       } else {
         if (
-          firstValidateSquare[0] === square1 &&
-          firstValidateSquare[1] === square2
+          document
+            .getElementById(typePiece + "-" + positionPiece)
+            .classList.contains("selected")
         ) {
-          firstValidateSquare = null;
+          if (firstValidateSquare !== null) {
+            firstValidateSquare[0].classList.remove("validate");
+            firstValidateSquare[1].classList.remove("validate");
+          }
+
+          square1.classList.add("validate");
+          square1.innerHTML = '<div class="val-child"></div>';
+
+          firstValidateSquare = [];
+          firstValidateSquare = [square1, square1];
+        } else {
+          if (
+            firstValidateSquare[0] === square1 &&
+            firstValidateSquare[1] === square1
+          ) {
+            firstValidateSquare = null;
+          }
+
+          square1.classList.remove("validate");
+          square1.innerHTML = "";
+        }
+      }
+
+      function square1Selected() {
+        square1.classList.remove("validate");
+        square1.innerHTML = "";
+        if (square2 !== null) {
+          square2.removeEventListener("click", square2Selected);
+          square2.classList.remove("validate");
+          square2.innerHTML = "";
         }
 
+        drawSelectedPiece(positionPiece, typePiece, square1.id);
+        square1.removeEventListener("click", square1Selected);
+
+        let isPromoting = checkPromotion(square1, typePiece);
+        if (!isPromoting) {
+          flipBoard(typePiece);
+        }
+      }
+
+      function square2Selected() {
+        square1.removeEventListener("click", square1Selected);
         square1.classList.remove("validate");
         square1.innerHTML = "";
         square2.classList.remove("validate");
         square2.innerHTML = "";
-      }
-    } else {
-      if (
-        document
-          .getElementById(typePiece + "-" + positionPiece)
-          .classList.contains("selected")
-      ) {
-        if (firstValidateSquare !== null) {
-          firstValidateSquare[0].classList.remove("validate");
-          firstValidateSquare[1].classList.remove("validate");
-        }
 
-        square1.classList.add("validate");
-        square1.innerHTML = '<div class="val-child"></div>';
-
-        firstValidateSquare = [];
-        firstValidateSquare = [square1, square1];
-      } else {
-        if (
-          firstValidateSquare[0] === square1 &&
-          firstValidateSquare[1] === square1
-        ) {
-          firstValidateSquare = null;
-        }
-
-        square1.classList.remove("validate");
-        square1.innerHTML = "";
-      }
-    }
-
-    function square1Selected() {
-      square1.classList.remove("validate");
-      square1.innerHTML = "";
-      if (square2 !== null) {
+        drawSelectedPiece(positionPiece, typePiece, square2.id);
         square2.removeEventListener("click", square2Selected);
-        square2.classList.remove("validate");
-        square2.innerHTML = "";
+        square1.classList.add(`passant-${typePiece.split("-")[1]}`);
+
+        flipBoard(typePiece);
       }
 
-      drawSelectedPiece(positionPiece, typePiece, square1.id);
-      square1.removeEventListener("click", square1Selected);
-
-      flipBoard(typePiece);
-    }
-
-    function square2Selected() {
-      square1.removeEventListener("click", square1Selected);
-      square1.classList.remove("validate");
-      square1.innerHTML = "";
-      square2.classList.remove("validate");
-      square2.innerHTML = "";
-
-      drawSelectedPiece(positionPiece, typePiece, square2.id);
-      square2.removeEventListener("click", square2Selected);
-      square1.classList.add(`passant-${typePiece.split("-")[1]}`);
-
-      flipBoard(typePiece);
-    }
-
-    if (square1.classList.contains("validate")) {
-      square1.addEventListener("click", square1Selected);
-      square1.dataset.eventlisteners = "click";
-      if (square2 !== null) {
-        square2.addEventListener("click", square2Selected);
-        square2.dataset.eventlisteners = "click";
+      if (square1.classList.contains("validate")) {
+        square1.addEventListener("click", square1Selected);
+        square1.dataset.eventlisteners = "click";
+        if (square2 !== null) {
+          square2.addEventListener("click", square2Selected);
+          square2.dataset.eventlisteners = "click";
+        }
       }
     }
   }
